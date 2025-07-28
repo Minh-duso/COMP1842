@@ -67,4 +67,15 @@ button.ui.button {
   margin-top: 15px;
   display: block;
 }
+
+#app {
+  min-height: 100vh;
+  background-image: url('@/assets/liem.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  color: white
+}
+
+
 </style>
