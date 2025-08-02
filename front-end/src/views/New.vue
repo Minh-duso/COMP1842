@@ -20,6 +20,11 @@ export default {
             this.flash('Word created', 'success');
             this.$router.push(`/words/${res._id}`);
         }
+    },
+     async mounted() {
+    if (this.$route.query.from === 'profile') {
+      alert("📣 You will move to New Page!");
     }
+  }
 };
 </script>

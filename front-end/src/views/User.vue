@@ -13,15 +13,21 @@
       </thead>
       <tbody>
         <tr>
-          <td><router-link to="/words">📘 Word Table</router-link></td>
+          <td>
+            <a href="#" @click.prevent="goToPage('/words')">📘 Word Table</a>
+          </td>
           <td>View and manage your vocabulary words.</td>
         </tr>
         <tr>
-          <td><router-link to="/words/new">🆕 Add New Word</router-link></td>
+          <td>
+            <a href="#" @click.prevent="goToPage('/words/new')">🆕 Add New Word</a>
+          </td>
           <td>Add a new word to the database.</td>
         </tr>
         <tr>
-          <td><router-link to="/test">📝 Test Yourself</router-link></td>
+          <td>
+            <a href="#" @click.prevent="goToPage('/test')">📝 Test Yourself</a>
+          </td>
           <td>Try a quiz to check your vocabulary!</td>
         </tr>
       </tbody>
@@ -31,6 +37,11 @@
 
 <script>
 export default {
-  name: 'user'
+  name: 'user',
+  methods: {
+    goToPage(path) {
+      this.$router.push({ path, query: { from: 'profile' } });
+    }
+  }
 };
 </script>

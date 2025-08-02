@@ -26,6 +26,9 @@
       };
     },
     async mounted() {
+       if (this.$route.query.from === 'profile') {
+      alert("📣 You will move to Test Page!");
+    }
       this.words = await api.getWords();
     }
   };
