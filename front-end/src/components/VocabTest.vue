@@ -2,7 +2,6 @@
   <div>
     <h2>Score: {{ score }} out of {{ words.length }}</h2>
 
-   
     <div class="field">
       <label>Choose language to test:</label>
       <select v-model="selectedLang" @change="resetTest" :disabled="testStarted">
@@ -13,28 +12,24 @@
       </select>
     </div>
 
-    
     <div v-if="!testStarted && !testOver">
       <button class="ui blue button" @click="startTest">▶️ Start Test</button>
     </div>
 
     <form @submit.prevent="onSubmit" v-if="!testOver">
-    
-<div v-if="testStarted && !testOver" style="font-size: 18px; margin-bottom: 10px;">
-  ⏱️ Time Left: <strong>{{ timeLeft }}s</strong>
-</div>
-
+      <div v-if="testStarted && !testOver" style="font-size: 18px; margin-bottom: 10px;">
+        ⏱️ Time Left: <strong>{{ timeLeft }}s</strong>
+      </div>
 
       <div class="ui labeled input fluid">
-  <div class="ui label">
-    <i :class="[langFlagMap[selectedLang], 'flag']"></i>
-    {{ langDisplayName[selectedLang] }}
-      </div>
+        <div class="ui label">
+          <i :class="[langFlagMap[selectedLang], 'flag']"></i>
+          {{ langDisplayName[selectedLang] }}
+        </div>
         <input type="text" readonly :disabled="testOver" :value="currWord[selectedLang]" />
         <button type="button" class="ui icon button" @click="speak(currWord[selectedLang])" :disabled="testOver || !currWord[selectedLang]">🔊</button>
       </div>
 
-     
       <div class="ui labeled input fluid">
         <div class="ui label">
           <i class="united kingdom flag"></i> English
@@ -55,7 +50,6 @@
       <span v-html="result"></span>
     </p>
 
-    
     <button class="ui red button" @click="resetTest" v-if="testStarted">🔄 Reset Test</button>
   </div>
 </template>
@@ -81,19 +75,19 @@ export default {
       score: 0,
       testOver: false,
       langDisplayName: {
-        german: ' German',
-        vietnamese: ' Vietnamese',
-        thai: ' Thai',
-        filipino: ' Filipino'
+        german: 'German',
+        vietnamese: 'Vietnamese',
+        thai: 'Thai',
+        filipino: 'Filipino'
       },
       langFlagMap: {
-  german: 'de',
-  vietnamese: 'vn',
-  thai: 'th',
-  filipino: 'ph'
-},
-timeLeft: 30,
-timer: null
+        german: 'de',
+        vietnamese: 'vn',
+        thai: 'th',
+        filipino: 'ph'
+      },
+      timeLeft: 30,
+      timer: null
     };
   },
   computed: {
@@ -115,25 +109,26 @@ timer: null
       this.startTimer();
     },
     startTimer() {
-    this.timeLeft = 30;
-    this.timer = setInterval(() => {
-      this.timeLeft--;
-      if (this.timeLeft <= 0) {
-        clearInterval(this.timer);
-        this.testOver = true;
-        this.displayResults();
-      }
-    }, 1000);
-  },
-
+      this.timeLeft = 30;
+      this.timer = setInterval(() => {
+        this.timeLeft--;
+        if (this.timeLeft <= 0) {
+          this.result = '⏰ You are out of time of the Test. Click Reset Test to test again!';
+          clearInterval(this.timer);
+          this.testOver = true;
+          this.displayResults(true); 
+        }
+      }, 1000);
+    },
     onSubmit() {
       if (!this.testStarted) {
-    this.flash('⚠️ Please click "Start Test" to begin.', 'error', { timeout: 3000 });
-    return;
-  }
+        this.flash('⚠️ Please click "Start Test" to begin.', 'error', { timeout: 3000 });
+        return;
+      }
+
       if (this.english.trim().toLowerCase() === this.currWord.english.toLowerCase()) {
         this.flash('✅ Correct!', 'success', { timeout: 1000 });
-        this.score += 1;
+        this.score++;
       } else {
         this.flash('❌ Wrong!', 'error', { timeout: 5000 });
         this.incorrectGuesses.push(this.currWord[this.selectedLang]);
@@ -144,7 +139,8 @@ timer: null
 
       if (this.randWords.length === 0) {
         this.testOver = true;
-        this.displayResults();
+        clearInterval(this.timer);
+        this.displayResults(false); 
       }
     },
     resetTest() {
@@ -161,6 +157,11 @@ timer: null
       this.timeLeft = 30;
     },
     displayResults() {
+      if (this.score === 0 && this.incorrectGuesses.length === 0) {
+        this.resultClass = 'warning';
+        return;
+      }
+
       if (this.incorrectGuesses.length === 0) {
         this.result = '🎉 You got everything correct. Well done!';
         this.resultClass = 'success';
@@ -169,34 +170,35 @@ timer: null
         this.result = `<strong>You got the following words wrong (${this.langDisplayName[this.selectedLang]}):</strong> ${incorrect}`;
         this.resultClass = 'error';
       }
+
     },
     flash(message, type, { timeout = 10000 } = {}) {
       this.result = message;
       this.resultClass = type;
       setTimeout(() => {
-        this.result = '';
-        this.resultClass = '';
+        if (!this.testOver) {
+          this.result = '';
+          this.resultClass = '';
+        }
       }, timeout);
     },
     speak(text) {
-  if (!window.speechSynthesis) {
-    alert('Speech Synthesis not supported in this browser.');
-    return;
-   } 
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = this.getVoiceLang(); 
-  window.speechSynthesis.speak(utterance);
-},
-  getVoiceLang() {
-  
-  const langMap = {
-    german: 'de-DE',
-    vietnamese: 'vi-VN',
-    thai: 'th-TH',
-    filipino: 'fil-PH'
-  };
-  return langMap[this.selectedLang] || 'en-US';
+      if (!window.speechSynthesis) {
+        alert('Speech Synthesis not supported in this browser.');
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = this.getVoiceLang();
+      window.speechSynthesis.speak(utterance);
+    },
+    getVoiceLang() {
+      const langMap = {
+        german: 'de-DE',
+        vietnamese: 'vi-VN',
+        thai: 'th-TH',
+        filipino: 'fil-PH'
+      };
+      return langMap[this.selectedLang] || 'en-US';
     }
   }
 };
@@ -221,6 +223,12 @@ timer: null
   background-color: #dff0d8;
 }
 
+.warning {
+  border: 1px solid #faebcc;
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+}
+
 select {
   margin: 10px 0;
   padding: 5px;
@@ -231,5 +239,4 @@ select {
   padding: 5px 10px;
   margin-left: 10px;
 }
-
 </style>
